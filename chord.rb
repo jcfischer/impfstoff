@@ -1,5 +1,6 @@
 require 'evolvable'
 
+# Generate the chords for "Someday my Vaccine will come"
 class Chord
   include Evolvable
 
@@ -32,7 +33,7 @@ class Chord
     { size: 200,
       selection_count: 3,
       mutation: Evolvable::Mutation.new(rate: 0.1),
-      log_progress: false }
+      log_progress: true }
   end
 
   def evolvable_progress
@@ -70,8 +71,8 @@ end
 def export_section(section, chords, generation, fitness)
   code = ''
   code << "# Gen:#{generation} | fit:  #{fitness}\n"
-  code <<  "define :#{section}_section do\n"
-  code <<  "  #{section}_section = (ring\n"
+  code <<  "define :gen_#{generation}_#{section} do\n"
+  code <<  "  gen_#{generation}_#{section} = (ring\n"
   code <<  "    #{chords.map { |c| Chord.expression(c)}.join(', ')}\n"
   code <<  "  )\n"
   code <<  "end\n"
@@ -81,7 +82,7 @@ end
 
 
 
-population = Chord.evolvable_population(log_progress: false)
+population = Chord.evolvable_population(log_progress: true)
 object = population.strongest_object
 count = 0
 last_fitness = object.fitness
@@ -92,7 +93,7 @@ until object.fitness >= Chord::SOMEDAY.length
   if object.fitness / last_fitness > 1.06
     chords = object.genes.values
     # puts "Generation: #{count} | Fitness: #{object.fitness}"
-    section_code << export_section(section.succ!, chords, count, object.fitness)
+    section_code << export_section(section, chords, count, object.fitness)
 
   end
   last_fitness = object.fitness
@@ -102,6 +103,6 @@ until object.fitness >= Chord::SOMEDAY.length
   count += 1
 end
 chords = object.genes.values
-section_code << export_section(section.succ!, chords, count, object.fitness)
+section_code << export_section(section, chords, count, object.fitness)
 # puts section_code
-File.write("./sections/seq.rb", section_code)
+# File.write("./sections/sec_#{section}.rb", section_code)
